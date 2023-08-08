@@ -26,7 +26,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(input_size, hidden_sizes[0])  
         self.fc2 = nn.Linear(hidden_sizes[0], hidden_sizes[1])
         self.fc3 = nn.Linear(hidden_sizes[1], output_size)
-        self.relu = nn.ReLU()
+        self.relu = nn.ReLU()  #Use ReLU as activation function
 
         #Works MUCH better than sigmoid & tanh, 
         #slightly better than regular softmax
@@ -48,37 +48,58 @@ optimizer = optim.Adam(model.parameters(), lr=0.003)
 #Training loop
 running_loss_arr = []
 for e in range(epochs):
-    running_loss = 0
+    running_loss = 0  # Initialize a variable to keep track of the running loss for this epoch
+    
+    # Iterate through the training dataset using the train_loader
     for images, labels in train_loader:
-        optimizer.zero_grad()
+        optimizer.zero_grad()  # Clear the gradients from the previous iteration
         
+        # Forward pass: Compute the model's predictions
         log_ps = model(images)
+        
+        # Compute the loss between the model's predictions and the true labels
         loss = loss_func(log_ps, labels)
+        
+        # Backpropagation: Compute gradients of the loss with respect to the model's parameters
         loss.backward()
+        
+        # Update the model's parameters using the optimizer (gradient descent step)
         optimizer.step()
         
+        # Accumulate the loss for this mini-batch
         running_loss += loss.item()
-    else:
-        print(f"Training loss: {running_loss/len(train_loader)}")
-        running_loss_arr.append((running_loss/len(train_loader)))
+    
+    # After each epoch, calculate and print the average training loss
+    print(f"Training loss: {running_loss/len(train_loader)}")
+    running_loss_arr.append((running_loss/len(train_loader)))
+
 
 ### e ###
 ################### Part 2 ###################
 #Eval loop
 test_loss = 0
 accuracy = 0
+# Disable gradient computation using torch.no_grad() context
 with torch.no_grad():
+    # Iterate through the test data using the test_loader
     for images, labels in test_loader:
+        # Forward pass: Compute the model's predictions
         log_ps = model(images)
+        
+        # Calculate the test loss
         test_loss += loss_func(log_ps, labels)
         
+        # Calculate the class probabilities from the log probabilities
         ps = torch.exp(log_ps)
+        
+        # Find the class with the highest probability (top class)
         top_p, top_class = ps.topk(1, dim=1)
-        equals = top_class==labels.view(*top_class.shape)
+        
+        # Check if the predicted class matches the actual labels
+        equals = top_class == labels.view(*top_class.shape)
+        
+        # Calculate the accuracy by taking the mean of the "equals" tensor
         accuracy += torch.mean(equals.type(torch.FloatTensor))
-    else:
-        print(f"Test loss: {test_loss/len(test_loader)}")
-        print(f"Accuracy: {accuracy/len(test_loader)}")  #Model accuracy
 
 ### f ###
 torch.save(model.state_dict(), 'checkpoint.pth')
@@ -91,7 +112,6 @@ plt.xlabel("Epoch")
 plt.ylabel("Loss")
 plt.xticks(range(1,epochs))
 plt.plot(running_loss_arr, label="Training Loss")
-# plt.plot(test_loss/len(test_loader), label="Test Loss")
 plt.show()
 
 
