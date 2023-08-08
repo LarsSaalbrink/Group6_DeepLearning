@@ -101,6 +101,10 @@ with torch.no_grad():
         # Calculate the accuracy by taking the mean of the "equals" tensor
         accuracy += torch.mean(equals.type(torch.FloatTensor))
 
+# Calculate the average test loss and test accuracy
+print(f"Test loss: {test_loss/len(test_loader)}")
+print(f"Accuracy: {accuracy/len(test_loader)}")  #Model accuracy
+
 ### f ###
 torch.save(model.state_dict(), 'checkpoint.pth')
 
