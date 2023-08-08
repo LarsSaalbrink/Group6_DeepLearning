@@ -11,26 +11,26 @@ test_dataset = datasets.MNIST(root='./data', train=False, download=True, transfo
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=64, shuffle=True) 
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
 
-#1.  Create a neural network:
-# Initialize 3 layers
-input_size = 784
+################### Part 1 ###################
+input_size = 28*28  #Dataset contains 28x28 images
 hidden_sizes = [128, 64]
 output_size = 10
-epochs = 10
+epochs = 1
 
-#Define the forward function:
-# Reshape the data to a fully connected layer. Hint: Use .view(). 
-# Let the input pass through the different layers.
-# Consider what activation function you want to use in between the 
-# layers, and for the final layer.
+### a ###
+### b ###
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_sizes[0])
+        #Linear is a fully connected layer
+        self.fc1 = nn.Linear(input_size, hidden_sizes[0])  
         self.fc2 = nn.Linear(hidden_sizes[0], hidden_sizes[1])
         self.fc3 = nn.Linear(hidden_sizes[1], output_size)
         self.relu = nn.ReLU()
-        self.logsoftmax = nn.LogSoftmax(dim=1)
+
+        #Works MUCH better than sigmoid & tanh, 
+        #slightly better than regular softmax
+        self.logsoftmax = nn.LogSoftmax(dim=1) 
         
     def forward(self, x):
         x = x.view(-1, input_size)
@@ -39,16 +39,13 @@ class Net(nn.Module):
         x = self.logsoftmax(self.fc3(x))
         return x
 
-# Loss function and optimizer: 
-# Consider what loss function and optimizer you want to use.
+### c ###
 model = Net()
-criterion = nn.NLLLoss()
+loss_func = nn.NLLLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.003)
 
-# Create the training loop:
-# Loop over the training data and pass it through the network.
-# Consider how many epochs you want to train for.
-# Print the training loss at each epoch.
+### d ###
+#Training loop
 running_loss_arr = []
 for e in range(epochs):
     running_loss = 0
@@ -56,7 +53,7 @@ for e in range(epochs):
         optimizer.zero_grad()
         
         log_ps = model(images)
-        loss = criterion(log_ps, labels)
+        loss = loss_func(log_ps, labels)
         loss.backward()
         optimizer.step()
         
@@ -65,16 +62,15 @@ for e in range(epochs):
         print(f"Training loss: {running_loss/len(train_loader)}")
         running_loss_arr.append((running_loss/len(train_loader)))
 
-#Create the evaluation loop:
-# Loop over the test data and pass it through the network.
-# Print the test loss and the accuracy.
-# Consider how you want to calculate the accuracy.
+### e ###
+################### Part 2 ###################
+#Eval loop
 test_loss = 0
 accuracy = 0
 with torch.no_grad():
     for images, labels in test_loader:
         log_ps = model(images)
-        test_loss += criterion(log_ps, labels)
+        test_loss += loss_func(log_ps, labels)
         
         ps = torch.exp(log_ps)
         top_p, top_class = ps.topk(1, dim=1)
@@ -82,14 +78,13 @@ with torch.no_grad():
         accuracy += torch.mean(equals.type(torch.FloatTensor))
     else:
         print(f"Test loss: {test_loss/len(test_loader)}")
-        print(f"Accuracy: {accuracy/len(test_loader)}")
+        print(f"Accuracy: {accuracy/len(test_loader)}")  #Model accuracy
 
-# Save the model
+### f ###
 torch.save(model.state_dict(), 'checkpoint.pth')
 
-# Report the accuracy of your model on the test data.
-# Plot the loss curve
-# epoch is integer
+################### Part 3 ###################
+#Loss plot
 plt.figure(figsize=(12,6))
 plt.title("Loss Curve")
 plt.xlabel("Epoch")
@@ -97,6 +92,21 @@ plt.ylabel("Loss")
 plt.xticks(range(1,epochs))
 plt.plot(running_loss_arr, label="Training Loss")
 # plt.plot(test_loss/len(test_loader), label="Test Loss")
+plt.show()
+
+
+#Run the first item in the dataset through the model and print the output
+#(Not part of the exercises)
+images, labels = next(iter(test_loader))
+img = images[0].view(1, 28*28)
+with torch.no_grad():
+    log_ps = model(img)
+    ps = torch.exp(log_ps)
+    top_p, top_class = ps.topk(1, dim=1)
+    print(f"Predicted digit: {top_class.item()}")
+
+#Plot the first item in the dataset
+plt.imshow(images[0].numpy().squeeze(), cmap='Greys_r')
 plt.show()
 
 
