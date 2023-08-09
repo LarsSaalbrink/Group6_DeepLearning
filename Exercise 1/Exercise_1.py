@@ -35,6 +35,11 @@ class MyNetwork(nn.Module):
 
 model = MyNetwork()
 
+print("CUDA? ", torch.cuda.is_available())
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("Choice: ", device)
+model.to(device)
+
 # loss_func = nn.CrossEntropyLoss()  #This invokes the softmax function at the end of the network
 # optimizer = optim.SGD(model.parameters(), lr=0.01)
 loss_func = nn.NLLLoss()
@@ -52,6 +57,7 @@ for epoch in range(num_epochs):
 
     #Training loop & loss
     for data, targets in train_loader:
+        data, targets = data.to(device), targets.to(device)
         optimizer.zero_grad()
         outputs = model(data)
         loss = loss_func(outputs, targets)
@@ -63,6 +69,7 @@ for epoch in range(num_epochs):
     model.eval()
     with torch.no_grad():
         for data, targets in test_loader:
+            data, targets = data.to(device), targets.to(device)
             outputs = model(data)
 
             #Validation loss
