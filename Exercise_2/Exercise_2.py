@@ -50,7 +50,6 @@ fig.tight_layout(pad=1.0)
 
 fig.show()
 #Block script from exiting so picture stays open
-# input("Press enter to exit")
-
+input("Press enter to exit")
 
 # %%
