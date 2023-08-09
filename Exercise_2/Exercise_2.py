@@ -7,6 +7,7 @@ import statsmodels.graphics.api as smg
 import matplotlib.pyplot as plt
 
 #%%
+##### Part 1 #####
 df = pd.read_csv('auto.csv')
 
 # Remove the rows in the ‘horsepower’ column that has the value ‘?’
@@ -15,6 +16,7 @@ df_clean = df[df.horsepower != '?']
 df_int = df_clean.copy().drop(columns='name').apply(pd.to_numeric)
 
 #%%
+##### Part 5 #####
 #Column names:
 #mpg, cylinders, displacement, horsepower, weight, acceleration, model_year, origin, name
 
@@ -22,6 +24,7 @@ df_int = df_clean.copy().drop(columns='name').apply(pd.to_numeric)
 df_int[['cylinders','displacement','horsepower','weight','acceleration','model_year']] = np.log(df_int[['cylinders','displacement','horsepower','weight','acceleration','model_year']])
 
 #%%
+##### Part 2 #####
 names = list(df_clean.columns)
 for i in range(0,8):
     fig, ax = plt.subplots()  # Create a figure containing a single axes.
@@ -31,6 +34,7 @@ for i in range(0,8):
 plt.show()
 
 #%%
+##### Part 3 & 4 #####
 Y = df_int['mpg']
 X = df_int[['cylinders', 'displacement', 'horsepower', 'weight', 'acceleration', 'model_year']]
 X = sm.add_constant(X)
