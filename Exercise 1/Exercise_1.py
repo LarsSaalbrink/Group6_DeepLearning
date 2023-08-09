@@ -15,7 +15,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, s
 input_size = 28*28  #Dataset contains 28x28 images
 hidden_sizes = [40, 20]
 output_size = 10
-num_epochs = 10
+num_epochs = 3
 
 class MyNetwork(nn.Module):
     def __init__(self):
@@ -40,10 +40,11 @@ model = MyNetwork()
 loss_func = nn.NLLLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.003)
 
-loss_values = []
 correct = 0
 total = 0
 val_loss_values = []
+loss_values = []
+accuracy_values = []
 for epoch in range(num_epochs):
     loss_value = 0
     val_loss_value = 0
@@ -74,18 +75,21 @@ for epoch in range(num_epochs):
             correct += (predicted == targets).sum().item()
 
     loss_values.append(loss_value/len(train_loader))
-    print(f"Training loss: {loss_value/len(train_loader)}")
+
+    print(f"Training loss: {loss_value/len(train_loader):.2f}")
 
     val_loss_values.append(val_loss_value/len(test_loader))
-    print(f"Validation loss: {val_loss_value/len(train_loader)}")
+    print(f"Validation loss: {val_loss_value/len(train_loader):.2f}")
 
-    accuracy = 100 * correct / total
-    print(f"Accuracy: {accuracy}%")
+    accuracy = correct / total
+    print(f"Accuracy: {(100*accuracy):.2f}%")
+    accuracy_values.append(accuracy)
 
 plt.plot(loss_values, label='Training loss')
 plt.plot(val_loss_values, label='Validation loss')
+plt.plot(accuracy_values, label='Accuracy')
 plt.xlabel('Epochs')
-plt.ylabel('Loss')
+plt.ylabel('Loss/Accuracy')
 plt.xticks(range(1,num_epochs))
 plt.legend()
 plt.show()
