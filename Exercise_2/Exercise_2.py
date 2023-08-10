@@ -20,7 +20,7 @@ df_int = df_clean.copy().drop(columns="name").apply(pd.to_numeric)
 # Column names:
 # mpg, cylinders, displacement, horsepower, weight, acceleration, model_year, origin, name
 
-# Preprocess the data 
+# Preprocess the data
 df_int[
     ["cylinders", "displacement", "horsepower", "weight", "acceleration", "model_year"]
 ] = np.log(
@@ -44,7 +44,7 @@ for i in range(0, 8):
     ax.set_ylabel(names[i])
     ax.scatter(df_int[names[0]], df_int[names[i]])
 
-    #save to file
+    # save to file
     fig.savefig(f"scatter_{names[i]}.png")
 
 plt.show()
