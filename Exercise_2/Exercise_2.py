@@ -39,7 +39,7 @@ df_int[
 # %%
 ##### Part 2 #####
 names = list(df_clean.columns)
-for i in range(0, 8):
+for i in range(1, 8):
     fig, ax = plt.subplots()
     ax.set_ylabel(names[i])
     ax.scatter(df_int[names[0]], df_int[names[i]])
