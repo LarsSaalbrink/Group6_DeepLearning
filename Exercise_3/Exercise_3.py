@@ -25,8 +25,6 @@ test_loader = torch.utils.data.DataLoader(
 )
 # Dataset contains 28x28 images
 
-torch.nn.Dropout(p=0.5, inplace=False)
-
 class MyNetwork(nn.Module):
     def __init__(self, layer_info_list, input_size, num_epochs, reg_info_list):
         super(MyNetwork, self).__init__()
@@ -34,17 +32,20 @@ class MyNetwork(nn.Module):
         for layer_info in layer_info_list:
             self.layers.extend(layer_info)
         
+        
+        print(self.layers)
+
         self.num_epochs = num_epochs
         self.input_size = input_size
         self.reg_info_list = reg_info_list
 
         self.softmax = nn.Softmax(dim=1)
+        self.relu = nn.Linear(128, 10)
         
     def forward(self, x):
         x = x.view(-1, self.input_size)
         for layer in self.layers:
             x = layer(x)
-        x = self.softmax(x)
         return x
         
 def train(model, num_epochs, criterion, optimizer, HW_choice):
@@ -62,7 +63,7 @@ def train(model, num_epochs, criterion, optimizer, HW_choice):
     loss_values = []
     accuracy_values = []
     for epoch in range(num_epochs):
-        print(f"\nEpoch {epoch}")
+        print(f"\nEpoch {epoch} / {num_epochs}")
         loss_value = 0
         val_loss_value = 0
         model.train()
@@ -74,11 +75,11 @@ def train(model, num_epochs, criterion, optimizer, HW_choice):
             outputs = model(data)
     
             loss = criterion(outputs, targets)
-            # Applying L1 regularization to specific layers
+            # Applying regularization
             for reg_info in model.reg_info_list:
-                idx, lambda_val = reg_info
+                idx, type, lambda_val = reg_info
                 layer = model.layers[idx]
-                loss += lambda_val * torch.norm(layer.weight, p=1)  # L1 regularization
+                loss += lambda_val * torch.norm(layer.weight, p=type)  # L2 regularization
     
             loss.backward()
             optimizer.step()
@@ -116,23 +117,24 @@ def train(model, num_epochs, criterion, optimizer, HW_choice):
 ################### Training ###################
 
 layer_info_list = [
-    [nn.Linear(in_features=28*28, out_features=40), nn.ReLU()],
-    [nn.Dropout(p=0.0, inplace=False), nn.Identity()],
-    [nn.Linear(in_features=40, out_features=20), nn.ReLU()],
-    [nn.Linear(in_features=20, out_features=10), nn.LogSoftmax(dim=1)]
+    [nn.Linear(in_features=28*28, out_features=512), nn.ReLU()],
+    [nn.Dropout(p=0.2), nn.Identity()],
+    [nn.Linear(in_features=512, out_features=256), nn.ReLU()],
+    [nn.Dropout(p=0.2), nn.Identity()],
+    [nn.Linear(in_features=256, out_features=128), nn.ReLU()],
+    [nn.Linear(in_features=128, out_features=10), nn.Identity()]
 ]
 input_size = 28*28
-num_epochs = 3
+num_epochs = 10
 
 #Layers numbers are even, uneven numbers are activation functions
-reg_info_list = [[4, 0]]  # [layer_index, lambda_val]
+# [layer_index, regularization_type, lambda_val]
+reg_info_list = [[0, 2, 0.001],[4, 2, 0.001],[8, 2, 0.001],[10, 2, 0.001]]  
 
 model = MyNetwork(layer_info_list, input_size, num_epochs, reg_info_list)
 
-# optimizer = optim.SGD(model.parameters(), lr=0.01)
-# criterion = nn.CrossEntropyLoss() # This invokes the softmax function at the end of the network
-criterion = nn.NLLLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.003)
+optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.4)
+criterion = nn.CrossEntropyLoss() # This invokes the softmax function at the end of the network
 
 loss_values, val_loss_values, accuracy_values = train(model, num_epochs, criterion, optimizer, "cpu")
 
