@@ -63,7 +63,7 @@ def train(model, num_epochs, criterion, optimizer, HW_choice):
     loss_values = []
     accuracy_values = []
     for epoch in range(num_epochs):
-        print(f"\nEpoch {epoch} / {num_epochs}")
+        print(f"\nEpoch {epoch+1} / {num_epochs}")
         loss_value = 0
         val_loss_value = 0
         model.train()
@@ -120,6 +120,7 @@ def plot(loss_values, val_loss_values, accuracy_values, num_epochs):
     # Set labels and ticks for the x-axis
     ax1.set_xlabel("Epochs")
     ax1.set_xticks(range(0, num_epochs))
+    ax1.set_xticklabels(range(1, num_epochs+1))
     ax1.set_ylabel("Loss")
 
     # Plot training and validation loss on the first y-axis (ax1)
