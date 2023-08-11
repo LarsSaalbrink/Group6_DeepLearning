@@ -12,10 +12,14 @@ import Ex3_src as src
 # %%
 ################### Training ###################
 
+#Now with dropout
+
 #Legend: [transformation_layer, activation_function]
 layer_info_list = [
     [nn.Linear(in_features=28 * 28, out_features=40), nn.ReLU()],
+    [nn.Dropout(p=0.2), nn.Identity()],
     [nn.Linear(in_features=40, out_features=20), nn.ReLU()],
+    [nn.Dropout(p=0.2), nn.Identity()],
     [nn.Linear(in_features=20, out_features=10), nn.Identity()],
 ]
 input_size = 28 * 28

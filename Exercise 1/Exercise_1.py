@@ -15,7 +15,7 @@ test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=64, s
 input_size = 28*28  #Dataset contains 28x28 images
 hidden_sizes = [40, 20]
 output_size = 10
-num_epochs = 3
+num_epochs = 5
 
 class MyNetwork(nn.Module):
     def __init__(self):

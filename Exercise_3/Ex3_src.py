@@ -114,7 +114,7 @@ def train(model, num_epochs, criterion, optimizer, HW_choice):
     return loss_values, val_loss_values, accuracy_values
 
 ################### Plotting ###################
-def plot(loss_values, val_loss_values, accuracy_values, num_epochs):
+def plot(loss_values, val_loss_values, accuracy_values, num_epochs, filename="test_result.png"):
     fig, ax1 = plt.subplots()
 
     # Set labels and ticks for the x-axis
@@ -137,4 +137,5 @@ def plot(loss_values, val_loss_values, accuracy_values, num_epochs):
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax2.legend(lines + lines2, labels + labels2, loc="upper center")
 
+    fig.savefig(filename)
     plt.show()

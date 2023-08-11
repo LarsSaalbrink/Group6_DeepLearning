@@ -12,9 +12,19 @@ import Ex3_src as src
 # %%
 ################### Training ###################
 
+#Now with:
+# -dropout
+
+# -0.05 learning rate
+# -momentum 0.4
+
 #Legend: [transformation_layer, activation_function]
 layer_info_list = [
-    [nn.Linear(in_features=28 * 28, out_features=40), nn.ReLU()],
+    [nn.Linear(in_features=28 * 28, out_features=80), nn.ReLU()],
+    [nn.Dropout(p=0.2), nn.Identity()],
+    [nn.Linear(in_features=80, out_features=60), nn.ReLU()],
+    [nn.Dropout(p=0.2), nn.Identity()],
+    [nn.Linear(in_features=60, out_features=40), nn.ReLU()],
     [nn.Linear(in_features=40, out_features=20), nn.ReLU()],
     [nn.Linear(in_features=20, out_features=10), nn.Identity()],
 ]
@@ -28,7 +38,8 @@ reg_info_list = []
 model = src.MyNetwork(layer_info_list, input_size, num_epochs, reg_info_list)
 
 optimizer = optim.SGD(model.parameters(), 
-                      lr=0.01)
+                      lr=0.05,
+                      momentum=0.4)
 criterion = (
     # This invokes the softmax function at the end of the network
     nn.CrossEntropyLoss()
