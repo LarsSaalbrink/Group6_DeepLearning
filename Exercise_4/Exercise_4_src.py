@@ -1,4 +1,3 @@
-# %%
 ################### Imports ###################
 import torch
 import torch.nn as nn
@@ -11,7 +10,6 @@ import matplotlib.pyplot as plt
 # Download & preprocess the MNIST dataset
 transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Normalize((0.5,), (0.5,)),
 ])
 
 train_dataset = datasets.MNIST(
@@ -22,8 +20,9 @@ test_dataset = datasets.MNIST(
 )
 
 #Unsqueeze to add a dimension of size one
-train_dataset.data = train_dataset.data.unsqueeze(-1)
-test_dataset.data = test_dataset.data.unsqueeze(-1)
+# THIS DOES NOT WORK, it happens automatically
+# train_dataset.data = train_dataset.data.unsqueeze(-1) / 255
+# test_dataset.data = test_dataset.data.unsqueeze(-1) / 255
 
 print("Training data size: ",train_dataset.data.shape)
 print("Test data size: ",test_dataset.data.shape)
@@ -129,3 +128,20 @@ def plot(
 
     fig.savefig(filename)
     plt.show()
+
+
+################### Activation visualization ###################
+def save_first_feature_map(model, row_size, col_size):
+    img_batch = next(iter(test_loader))[0]
+    conv1_output = model.conv1(img_batch[0])
+    layer_visualization = conv1_output.data
+
+    for i, feature_map in enumerate(layer_visualization):
+        plt.subplot(row_size, col_size, i + 1)
+        plt.imshow(feature_map.numpy(), cmap='gray')
+        plt.axis('off')
+    plt.savefig('feature_maps.png')
+    plt.show()
+
+
+# %%
